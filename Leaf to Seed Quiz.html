@@ -1,0 +1,850 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Leaf to Seed Quiz</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: one centered study column. Home screen (setup) -> question card -> results with review. */
+:root{
+  --bg:#EDF3EA; --surface:#FFFFFF; --fg:#14261B; --muted:#56695D; --line:#D2DFD0;
+  --accent:#1D6B45; --accent-fg:#FFFFFF; --accent-soft:#DCEBDD;
+  --good:#17703F; --good-bg:#DAF0E2; --bad:#AE3220; --bad-bg:#F9E1DB;
+  --t-tf:#2D5DA3; --t-tf-bg:#E0EAF7; --t-mc:#8C5A0C; --t-mc-bg:#F7EAD2; --t-ty:#6A3FA0; --t-ty-bg:#ECE3F7;
+  --display:"Space Grotesk",system-ui,sans-serif; --body:"Inter",system-ui,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0F1913; --surface:#172419; --fg:#E3EDE5; --muted:#93AA9A; --line:#2A3B2F;
+  --accent:#5EC08A; --accent-fg:#08150D; --accent-soft:#1E3A2A;
+  --good:#6FD39A; --good-bg:#17382A; --bad:#F0907C; --bad-bg:#3D201B;
+  --t-tf:#8DB4F0; --t-tf-bg:#1D2B42; --t-mc:#E6B864; --t-mc-bg:#3A2D14; --t-ty:#C3A3EE; --t-ty-bg:#2C2140; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0F1913; --surface:#172419; --fg:#E3EDE5; --muted:#93AA9A; --line:#2A3B2F;
+  --accent:#5EC08A; --accent-fg:#08150D; --accent-soft:#1E3A2A;
+  --good:#6FD39A; --good-bg:#17382A; --bad:#F0907C; --bad-bg:#3D201B;
+  --t-tf:#8DB4F0; --t-tf-bg:#1D2B42; --t-mc:#E6B864; --t-mc-bg:#3A2D14; --t-ty:#C3A3EE; --t-ty-bg:#2C2140; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font:16px/1.55 var(--body);padding-block:28px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:clamp(30px,6vw,44px);line-height:1.05;font-weight:700}
+.eyebrow{font:500 12px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.lede{color:var(--muted);margin:12px 0 0;max-width:60ch}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;margin-top:20px}
+.panel h2{font-size:16px;font-weight:600;display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:12px}
+.link{background:none;border:0;color:var(--accent);font:500 13px var(--body);cursor:pointer;padding:2px 0;text-decoration:underline}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{font:500 14px var(--body);color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;display:inline-flex;gap:8px;align-items:center;min-height:38px}
+.chip .n{font:500 12px var(--mono);color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+.chip[aria-pressed="true"] .n{color:inherit;opacity:.8}
+button:focus-visible,input:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.btn{font:600 16px var(--body);background:var(--accent);color:var(--accent-fg);border:0;border-radius:10px;padding:13px 22px;cursor:pointer;min-height:46px}
+.btn.ghost{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.sum{font:500 13px var(--mono);color:var(--muted)}
+.tag{font:500 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:6px;display:inline-block}
+.tag.tf{background:var(--t-tf-bg);color:var(--t-tf)} .tag.mc{background:var(--t-mc-bg);color:var(--t-mc)} .tag.ty{background:var(--t-ty-bg);color:var(--t-ty)}
+.tag.topic{background:var(--accent-soft);color:var(--accent)}
+.bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.qhead{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:10px;font:500 13px var(--mono);color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:24px;margin-top:16px}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+.q{font:600 clamp(19px,3.6vw,24px)/1.35 var(--display);margin:0 0 20px;text-wrap:pretty}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;font:500 16px/1.4 var(--body);color:var(--fg);background:var(--bg);border:1.5px solid var(--line);border-radius:10px;padding:13px 14px;cursor:pointer;width:100%;min-height:48px}
+.opt .k{font:500 12px var(--mono);border:1px solid var(--line);border-radius:6px;min-width:26px;height:26px;display:grid;place-items:center;color:var(--muted);flex:none;background:var(--surface)}
+.opt:hover:not(:disabled){border-color:var(--accent)}
+.opt.good{background:var(--good-bg);border-color:var(--good);color:var(--fg)} .opt.bad{background:var(--bad-bg);border-color:var(--bad)}
+.opt:disabled{cursor:default}
+.tfgrid{grid-template-columns:1fr 1fr}
+.tfgrid .opt{justify-content:center;font:600 18px var(--display);padding:18px}
+input.ans{width:100%;font:500 18px var(--body);padding:14px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--fg)}
+input.ans.good{border-color:var(--good);background:var(--good-bg)} input.ans.bad{border-color:var(--bad);background:var(--bad-bg)}
+.fb{margin-top:18px;padding:14px 16px;border-radius:10px;font-size:15px}
+.fb.good{background:var(--good-bg);border-left:4px solid var(--good)} .fb.bad{background:var(--bad-bg);border-left:4px solid var(--bad)}
+.fb b{font-family:var(--display)}
+.fb .why{display:block;margin-top:4px;color:var(--fg)}
+.score{font:700 clamp(56px,14vw,96px)/1 var(--display);color:var(--accent)}
+.breakdown{display:grid;gap:12px}
+.brow{display:grid;grid-template-columns:minmax(0,190px) 1fr 64px;gap:12px;align-items:center;font-size:14px}
+.brow .pc{font:500 13px var(--mono);text-align:right}
+.miss{border-top:1px solid var(--line);padding:14px 0}
+.miss:first-child{border-top:0}
+.miss p{margin:6px 0 0}
+.miss .ya{color:var(--bad)} .miss .ca{color:var(--good);font-weight:600}
+.themebtn{float:right}
+@media (max-width:520px){.brow{grid-template-columns:1fr 60px}.brow .bar{grid-column:1 / -1;order:3}.tfgrid{grid-template-columns:1fr 1fr}.card{padding:18px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+[hidden]{display:none!important}
+</style>
+
+<div class="wrap">
+  <div id="home">
+    <div class="eyebrow">BBIO101L &middot; End-term review</div>
+    <h1>Leaf to Seed Quiz</h1>
+    <p class="lede">Leaves, photosynthesis, flowers, fruits and seeds. True or false checks concepts, multiple choice mixes concepts and terms, and typing tests pure recall of names. Every term and subtype from the slides is in the bank.</p>
+    <p class="sum" id="bankSum"></p>
+
+    <div class="panel"><h2><span>Topics</span><span><button class="link" id="allTopics">All</button> &middot; <button class="link" id="noTopics">None</button></span></h2><div class="chips" id="topicChips"></div></div>
+    <div class="panel"><h2>Question types</h2><div class="chips" id="typeChips"></div></div>
+    <div class="panel"><h2>Number of questions</h2><div class="chips" id="lenChips"></div></div>
+    <div class="row" style="margin-top:22px"><button class="btn" id="start">Start quiz</button><span class="sum" id="poolSum"></span></div>
+  </div>
+
+  <div id="quiz" hidden>
+    <div class="qhead"><span id="qcount"></span><span id="qscore"></span></div>
+    <div class="bar"><i id="qbar" style="width:0"></i></div>
+    <div class="card">
+      <div class="tags" id="qtags"></div>
+      <h2 class="q" id="qtext"></h2>
+      <div id="qbody"></div>
+      <div class="fb" id="fb" hidden aria-live="polite"></div>
+      <div class="row" style="margin-top:18px"><button class="btn" id="primary">Check</button><button class="btn ghost" id="secondary" hidden>Show answer</button><button class="link" id="quit" style="margin-left:auto">End quiz</button></div>
+    </div>
+  </div>
+
+  <div id="results" hidden>
+    <div class="eyebrow">Results</div>
+    <div class="score" id="rScore"></div>
+    <p class="lede" id="rLine"></p>
+    <div class="panel"><h2>By question type</h2><div class="breakdown" id="byType"></div></div>
+    <div class="panel"><h2>By topic</h2><div class="breakdown" id="byTopic"></div></div>
+    <div class="panel"><h2>Missed questions</h2><div id="missed"></div></div>
+    <div class="row" style="margin-top:22px"><button class="btn" id="retryMissed">Retry missed</button><button class="btn ghost" id="again">New quiz</button></div>
+  </div>
+</div>
+
+<script>
+const TOPICS={LM:"Leaf morphology",LA:"Leaf anatomy & stomata",SW:"Specialized leaves & water",PH:"Photosynthesis",FL:"Flower parts & classes",IR:"Inflorescence & reproduction",FR:"Fruits",SD:"Seeds"};
+const BANK=[];
+const T=(t,q,a,e)=>BANK.push({k:"tf",t,q,a,e});
+const M=(t,q,c,w,e)=>BANK.push({k:"mc",t,q,c,w,e});
+const Y=(t,q,a,e)=>BANK.push({k:"ty",t,q,a,e});
+
+/* ================= LEAF MORPHOLOGY ================= */
+T("LM","Leaves originate in the shoot's apical meristem as a bulge of tissue called leaf primordia.",true,"Leaf primordia arise from the shoot apical meristem.");
+T("LM","A leaf is a flattened, lateral outgrowth of the stem or node with a bud in its axil.",true,"This is the definition of a leaf.");
+T("LM","The main role of stipules is to position the leaf so it captures maximum sunlight.",false,"That is the petiole's job. Stipules protect the young developing leaf or bud.");
+T("LM","The petiole raises the leaf upward so it can capture maximum sunlight.",true,"The petiole is the stalk that connects the blade to the stem.");
+T("LM","In monocots the leaf base is a leaf sheath, while in dicots it is stipules.",true,"As given in the slides on the leaf base.");
+T("LM","Most photosynthesis takes place in the petiole.",false,"It takes place in the broad, flat leaf blade (lamina).");
+T("LM","The part of pechay or lettuce we usually eat is the leaf blade.",true,"The leaf blade / lamina is the part eaten.");
+T("LM","In alternate phyllotaxy, two leaves grow directly opposite each other at a node.",false,"That describes opposite arrangement. Alternate has a single leaf per node.");
+T("LM","Alternate (spiral) is the most common leaf arrangement.",true,"One leaf per node, alternating sides of the stem.");
+T("LM","In whorled phyllotaxy, three or more leaves grow in a circle from the same node.",true,"Examples: Alstonia (dita tree) and Hydrilla.");
+T("LM","A simple leaf may be lobed or cleft, but not all the way down to the midrib.",true,"If the division reaches the midrib the leaf is compound.");
+T("LM","A compound leaf has a single undivided blade.",false,"A compound leaf's blade is divided into leaflets.");
+T("LM","In a bipinnately compound leaf, the rachis itself branches into secondary rachises that bear the leaflets.",true,"Bipinnate leaves such as makahiya and acacia.");
+T("LM","In a palmately compound leaf, leaflets are attached along both sides of a central rachis.",false,"That is pinnate. Palmate leaflets radiate from the tip of the petiole.");
+T("LM","In a tripinnate leaf the leaflets are attached to a tertiary rachis.",true,"The rachis branches three times.");
+T("LM","Netted (reticulate) venation is found mostly in dicots.",true,"Veins form a branching network.");
+T("LM","Parallel venation is common in monocots.",true,"Veins run side by side from base to tip.");
+T("LM","A pinnately reticulate leaf has several large veins radiating from the tip of the petiole.",false,"That is palmately reticulate. Pinnate has one principal vein (midrib).");
+T("LM","Banana has simple leaves with parallel venation.",true,"Musa spp.: alternate, simple, parallel.");
+T("LM","Cassava has palmately compound leaves with palmately reticulate venation.",true,"Manihot esculenta.");
+T("LM","Malunggay (Moringa oleifera) has bipinnately compound leaves.",false,"Malunggay is tripinnately compound.");
+T("LM","Guava leaves are arranged oppositely and are simple with pinnately netted venation.",true,"Psidium guajava.");
+T("LM","Mahogany, ferns and rain tree are examples of simple leaves.",false,"They are examples of compound leaves.");
+T("LM","Rice (Oryza sativa) has simple leaves with parallel venation.",true,"A monocot with parallel veins.");
+
+M("LM","Which part of the leaf connects the blade to the stem?","Petiole",["Stipule","Midrib","Apex"],"The petiole is the stalk.");
+M("LM","What is the main role of stipules?","Protect the young developing leaf or bud",["Capture maximum sunlight","Carry out most photosynthesis","Regulate gas exchange"],"Stipules sit at the base of the petiole.");
+M("LM","Which of these is NOT one of the four parts of a leaf listed in the lesson?","Pedicel",["Stipules","Petiole","Leaf base"],"The four parts: stipules, petiole, leaf base, leaf blade/lamina. Pedicel belongs to the flower.");
+M("LM","Which is the broad, flat portion where most photosynthesis takes place?","Leaf blade / lamina",["Petiole","Leaf base","Stipule"],"");
+M("LM","Calamansi, guava and macopa share which phyllotaxy?","Opposite",["Alternate","Whorled","Spiral"],"Two leaves per node, facing each other.");
+M("LM","Sunflower and mango leaves are arranged in which way?","Alternate (spiral)",["Opposite","Whorled","Palmate"],"");
+M("LM","Alstonia (dita tree) and Hydrilla show which phyllotaxy?","Whorled",["Alternate","Opposite","Spiral"],"Three or more leaves per node.");
+M("LM","Which is an example of a COMPOUND leaf?","Mahogany",["Mango","Banana","Gabi"],"Mango, banana, gabi and santol are simple.");
+M("LM","Which is an example of a SIMPLE leaf?","Santol",["Mahogany","Rain tree","Five fingers"],"");
+M("LM","Kamias, Cassia and ferns have which kind of leaf?","Unipinnate",["Bipinnate","Tripinnate","Palmately compound"],"Leaflets attach directly to the rachis.");
+M("LM","Makahiya and acacia have which kind of leaf?","Bipinnate",["Unipinnate","Tripinnate","Palmately compound"],"");
+M("LM","Malunggay (Moringa) has which kind of leaf?","Tripinnately compound",["Unipinnately compound","Bipinnately compound","Palmately compound"],"");
+M("LM","Cassava and five fingers have which kind of compound leaf?","Palmately compound",["Unipinnate","Bipinnate","Tripinnate"],"");
+M("LM","What distinguishes a bipinnate leaf from a unipinnate leaf?","The rachis branches into secondary rachises that bear leaflets",["Leaflets radiate from the petiole tip","The blade is undivided","It has parallel venation"],"");
+M("LM","Which venation do banana and rice have?","Parallel",["Pinnately reticulate","Palmately reticulate","Netted"],"");
+M("LM","A leaf with one principal vein (midrib) from which smaller veins spread out has which venation?","Pinnately reticulate",["Palmately reticulate","Parallel","Palmately compound"],"");
+M("LM","Several large veins radiating from the tip of the petiole describe which venation?","Palmately reticulate",["Pinnately reticulate","Parallel","Unipinnate"],"");
+M("LM","Which scientific name belongs to malunggay?","Moringa oleifera",["Manihot esculenta","Mangifera indica","Brassica rapa"],"");
+M("LM","Samanea saman is the scientific name of which plant?","Acacia (rain tree)",["Guava","Cassava","Kangkong"],"Bipinnately compound leaves.");
+M("LM","Ipomoea aquatica is which plant?","Kangkong",["Pechay","Banana","Rice"],"Alternate, simple, pinnately netted.");
+M("LM","Brassica rapa is which plant?","Pechay",["Kangkong","Cassava","Mango"],"");
+M("LM","Manihot esculenta is which plant?","Cassava",["Mango","Guava","Malunggay"],"Alternate, palmately compound, palmately netted.");
+M("LM","Psidium guajava is which plant?","Guava",["Mango","Acacia","Pechay"],"Opposite, simple, pinnately netted.");
+M("LM","Mangifera indica is which plant?","Mango",["Guava","Banana","Rice"],"Alternate, simple, pinnately netted.");
+M("LM","Which plant is alternate, palmately compound and palmately netted?","Cassava",["Mango","Acacia","Malunggay"],"");
+M("LM","Which plant has alternate, bipinnately compound leaves?","Acacia (Samanea saman)",["Malunggay","Guava","Banana"],"");
+M("LM","Which venation type is found mostly in dicots?","Netted (reticulate)",["Parallel","Sheathing","Whorled"],"");
+M("LM","From what do leaves develop in the shoot's apical meristem?","Leaf primordia",["Axillary buds","Leaflets","Stipules"],"");
+
+Y("LM","Small leaf-like structures at the base of the petiole that protect the young leaf or bud",["stipules","stipule"]);
+Y("LM","Stalk that connects the leaf blade to the stem",["petiole"]);
+Y("LM","Broad, flat portion of the leaf where most photosynthesis occurs (give either name)",["leaf blade","lamina","blade","leaf blade lamina"]);
+Y("LM","In monocots, the leaf base takes the form of a ____",["leaf sheath","sheath"]);
+Y("LM","The central or main vein of a leaf",["midrib"]);
+Y("LM","Bulge of tissue in the apical meristem from which a leaf originates",["leaf primordia","leaf primordium","primordia","primordium"]);
+Y("LM","Phyllotaxy: a single leaf grows at each node, alternating sides. This is the most common arrangement.",["alternate","spiral","alternate spiral"]);
+Y("LM","Phyllotaxy: pairs of leaves face each other across the stem, two per node",["opposite"]);
+Y("LM","Phyllotaxy: three or more leaves grow in a circle from the same node",["whorled","whorl"]);
+Y("LM","Leaf type with a single blade (entire, lobed or cleft, but not to the midrib)",["simple","simple leaf"]);
+Y("LM","Leaf type whose blade is divided into leaflets",["compound","compound leaf"]);
+Y("LM","The smaller units into which a compound leaf's blade is divided",["leaflets","leaflet"]);
+Y("LM","The central axis that bears the leaflets of a pinnately compound leaf",["rachis"]);
+Y("LM","Compound leaf whose leaflets are arranged along both sides of a central axis",["pinnately compound","pinnate"]);
+Y("LM","Compound leaf whose leaflets radiate from the tip of the petiole like fingers of a hand",["palmately compound","palmate"]);
+Y("LM","Pinnately compound leaf with leaflets attached directly to the rachis",["unipinnate"]);
+Y("LM","Pinnately compound leaf whose rachis branches into secondary rachises bearing leaflets",["bipinnate"]);
+Y("LM","Pinnately compound leaf whose rachis branches three times (leaflets on the tertiary rachis)",["tripinnate"]);
+Y("LM","Venation in which veins form a branching network (give either name)",["netted","reticulate","netted reticulate"]);
+Y("LM","Venation in which veins run side by side from base to tip",["parallel","parallel venation"]);
+Y("LM","Netted venation with one principal vein (midrib) and smaller veins spreading out",["pinnately reticulate","pinnate","pinnately netted"]);
+Y("LM","Netted venation with several large veins radiating from the tip of the petiole",["palmately reticulate","palmate","palmately netted"]);
+Y("LM","Scientific name of mango (genus and species)",["mangifera indica"]);
+Y("LM","Scientific name of guava",["psidium guajava"]);
+Y("LM","Scientific name of cassava",["manihot esculenta"]);
+Y("LM","Scientific name of kangkong",["ipomoea aquatica"]);
+Y("LM","Scientific name of acacia (rain tree)",["samanea saman"]);
+Y("LM","Scientific name of rice",["oryza sativa"]);
+Y("LM","Scientific name of pechay",["brassica rapa"]);
+Y("LM","Scientific name of malunggay",["moringa oleifera"]);
+Y("LM","Genus of banana (written Musa spp.)",["musa"]);
+Y("LM","Plant used as an example of whorled phyllotaxy: dita tree or this aquatic plant",["hydrilla","alstonia","dita"]);
+
+/* ================= LEAF ANATOMY & STOMATA ================= */
+T("LA","The upper epidermis is usually transparent and lacks chloroplasts, letting sunlight pass through.",true,"Light reaches the mesophyll below.");
+T("LA","The waxy cuticle on the upper epidermis increases water loss.",false,"It reduces water loss.");
+T("LA","Palisade cells are loosely arranged with large air spaces.",false,"That describes spongy cells. Palisade cells are elongated and tightly packed with chloroplasts.");
+T("LA","Spongy mesophyll cells are loosely arranged with large air spaces.",true,"The air spaces help gas movement.");
+T("LA","Photosynthesis occurs mainly in the mesophyll.",true,"The middle layer of the leaf.");
+T("LA","Veins contain xylem, which transports sugars, and phloem, which transports water and minerals.",false,"Reversed: xylem carries water and minerals, phloem carries sugars.");
+T("LA","Stomata are mostly located in the lower epidermis.",true,"The lower epidermis is the main site of gas exchange and transpiration.");
+T("LA","About 90% of water loss from a leaf occurs through the stomata.",true,"");
+T("LA","Guard cells regulate the size of the stomatal opening.",true,"");
+T("LA","Abscisic acid (ABA) is a hormone that influences stomatal opening and closing.",true,"Other factors: internal CO2 concentration, blue light, low humidity.");
+T("LA","Stomata allow gases to be exchanged between the plant and the atmosphere.",true,"They are microscopic pores in the leaf.");
+T("LA","The monocot leaf cross section lists a bundle sheath region, while the dicot list names veins.",true,"Monocot: upper epidermis, mesophyll, bundle sheath, lower epidermis, stoma.");
+T("LA","The midrib is the central or main vein of a leaf.",true,"");
+T("LA","Up to 10,000 stomata can be found per square centimeter of the lower epidermis.",true,"");
+T("LA","In the dicot leaf diagram, the air space around the guard cells is the respiratory cavity, while the monocot diagram labels a sub-stomatal chamber.",true,"Both are air spaces beneath the stoma.");
+
+M("LA","In which layer of the leaf does photosynthesis mainly occur?","Mesophyll",["Upper epidermis","Cuticle","Lower epidermis"],"");
+M("LA","What is the function of the waxy cuticle?","Reduces water loss",["Transports sugars","Absorbs sunlight","Opens the stomata"],"");
+M("LA","Why is the upper epidermis transparent and without chloroplasts?","So sunlight can pass through to the mesophyll",["To store water","To carry out gas exchange","To transport minerals"],"");
+M("LA","Which mesophyll cells are elongated and tightly packed with chloroplasts?","Palisade",["Spongy","Guard","Epidermal"],"");
+M("LA","Which mesophyll cells are loosely arranged with large air spaces?","Spongy",["Palisade","Guard","Bundle sheath"],"");
+M("LA","Which tissue transports sugars in the leaf veins?","Phloem",["Xylem","Cuticle","Palisade"],"");
+M("LA","Which tissue transports water and minerals in the leaf veins?","Xylem",["Phloem","Spongy mesophyll","Epidermis"],"");
+M("LA","Which cells regulate the size of the stomata?","Guard cells",["Palisade cells","Bundle sheath cells","Epidermal hairs"],"");
+M("LA","Which hormone is associated with stomatal opening and closing?","Abscisic acid (ABA)",["Auxin","Gibberellin","Cytokinin"],"");
+M("LA","Which is NOT listed as a factor for stomatal opening and closing?","Soil pH",["Internal CO2 concentration","Blue light","Low humidity"],"");
+M("LA","Which region is the main site of gas exchange and transpiration?","Lower epidermis (stomata)",["Upper epidermis","Palisade layer","Midrib"],"");
+M("LA","Roughly how much of a leaf's water loss occurs through the stomata?","90%",["10%","40%","60%"],"");
+M("LA","In the dicot leaf, which region is replaced by 'bundle sheath' in the monocot list?","Veins",["Upper epidermis","Lower epidermis","Mesophyll"],"");
+M("LA","In the leaf diagrams, the two xylem types are labeled protoxylem and what?","Metaxylem",["Paraxylem","Endoxylem","Exoxylem"],"");
+M("LA","Which structure in the dicot leaf diagram projects from the epidermis?","Epidermal hair",["Guard cell","Bundle sheath","Phloem"],"");
+M("LA","In the monocot diagram, the air space under the stoma is labeled:","Sub-stomatal chamber",["Respiratory cavity","Bundle sheath","Cuticle"],"");
+
+Y("LA","Middle layer of the leaf where photosynthesis occurs",["mesophyll"]);
+Y("LA","Waxy covering of the upper epidermis that reduces water loss",["cuticle"]);
+Y("LA","Mesophyll cells that are elongated and tightly packed with chloroplasts",["palisade","palisade mesophyll","palisade parenchyma"]);
+Y("LA","Mesophyll cells that are loosely arranged with large air spaces",["spongy","spongy mesophyll","spongy parenchyma"]);
+Y("LA","Vascular tissue that transports water and minerals",["xylem"]);
+Y("LA","Vascular tissue that transports sugars",["phloem"]);
+Y("LA","Microscopic pores through which gases enter and leave the leaf (plural)",["stomata"]);
+Y("LA","Specialized cells that regulate the size of the stomata",["guard cells","guard cell"]);
+Y("LA","Hormone that influences stomatal opening and closing (name or abbreviation)",["abscisic acid","aba"]);
+Y("LA","Region that surrounds the vascular bundle in the monocot leaf",["bundle sheath"]);
+Y("LA","Leaf layer, besides the cuticle-covered upper layer, that contains most stomata",["lower epidermis"]);
+Y("LA","Layer covered by a waxy cuticle and usually without chloroplasts",["upper epidermis"]);
+Y("LA","Vascular bundles in the leaf are also called ____",["veins","vein"]);
+Y("LA","First of the two xylem types shown in the leaf diagrams (earlier-formed)",["protoxylem"]);
+Y("LA","Second of the two xylem types shown in the leaf diagrams (later-formed)",["metaxylem"]);
+Y("LA","Hair-like outgrowth labeled on the dicot leaf epidermis",["epidermal hair","epidermal hairs"]);
+Y("LA","Air space labeled beneath the stoma in the dicot leaf diagram",["respiratory cavity"]);
+Y("LA","Air space labeled beneath the stoma in the monocot leaf diagram",["sub-stomatal chamber","substomatal chamber","sub stomatal chamber"]);
+
+/* ================= SPECIALIZED LEAVES & WATER ================= */
+T("SW","Some plants have modified leaves that perform special functions beyond photosynthesis.",true,"Seven are listed: reproduction, aeration, support, protection, storage, attraction, absorption.");
+T("SW","Brightly colored bracts are modified leaves that attract pollinators by mimicking flowers.",true,"");
+T("SW","Succulent leaves retain water and may store food.",true,"This is the storage modification.");
+T("SW","Insectivorous leaves are an example of the protection modification.",false,"They are an absorption modification (as are uncutinized leaves).");
+T("SW","Leaves modified for aeration allow aquatic plants to float and aid gas exchange.",true,"");
+T("SW","Bud scales, spines and stipules are among the structures that protect a plant.",true,"Along with motile leaves and bracts.");
+T("SW","Plantlets forming on leaf edges and growing into new plants is a form of reproduction.",true,"");
+T("SW","Transpiration is the loss of water from plants as liquid droplets.",false,"Transpiration loses water as water vapor. Guttation exudes liquid droplets.");
+T("SW","Guttation is the exudation of water droplets from leaves through hydathodes.",true,"");
+T("SW","Guttation usually happens at night and is noticeable in the early morning when soil moisture and humidity are high.",true,"");
+T("SW","Guttation occurs through the stomata.",false,"It occurs through hydathodes.");
+T("SW","Humidity, temperature and wind velocity influence the rate of transpiration.",true,"");
+T("SW","Stomatal transpiration accounts for 90 to 95% of water loss from leaves.",true,"");
+T("SW","The waxy layer in the epidermis helps plants conserve water.",true,"");
+T("SW","Transpiration can be measured by weight loss or by gas exchange.",true,"");
+T("SW","Whole-plant water relations include absorbing water from soil, moving it through the plant, and losing it to the air as vapor.",true,"");
+
+M("SW","Tiny plantlets forming on leaf edges illustrate which specialized function?","Reproduction",["Aeration","Support","Storage"],"");
+M("SW","Leaves that let an aquatic plant float and help gas exchange are specialized for:","Aeration",["Reproduction","Absorption","Attraction"],"");
+M("SW","Thin, coiling leaf structures that help a plant climb serve which function?","Support",["Protection","Storage","Attraction"],"");
+M("SW","Which is a protective leaf modification?","Bud scales",["Succulent tissue","Plantlets","Insectivorous trap"],"");
+M("SW","Succulent leaves that retain water are specialized for:","Storage",["Absorption","Support","Aeration"],"");
+M("SW","Brightly colored bracts mainly serve which function?","Attraction of pollinators",["Absorption","Aeration","Protection of roots"],"");
+M("SW","Insectivorous and uncutinized leaves are specialized for:","Absorption",["Reproduction","Support","Storage"],"");
+M("SW","Which process releases liquid water droplets through hydathodes?","Guttation",["Transpiration","Photosynthesis","Translocation"],"");
+M("SW","Which process loses water to the air as vapor?","Transpiration",["Guttation","Dormancy","Pollination"],"");
+M("SW","Which of the following is NOT an environmental factor for transpiration rate listed in the lesson?","Seed size",["Humidity","Temperature","Wind velocity"],"");
+M("SW","The two methods of measuring transpiration are:","Weight loss and gas exchange",["Weight gain and pressure","Color change and pH","Heat and light"],"");
+M("SW","Guttation is most likely under which conditions?","Night, with high soil moisture and high humidity",["Midday with dry soil","Windy, low humidity","Bright light, high temperature"],"");
+
+Y("SW","Specialized leaf function: tiny plantlets form on the leaf edges",["reproduction"]);
+Y("SW","Specialized leaf function: allows an aquatic plant to float and exchange gases",["aeration"]);
+Y("SW","Specialized leaf function: thin, coiling structures that let a plant attach and climb",["support"]);
+Y("SW","Specialized leaf function: bud scales, spines, stipules and bracts",["protection"]);
+Y("SW","Specialized leaf function: succulent leaves that retain water and food",["storage"]);
+Y("SW","Specialized leaf function: bracts that mimic flowers to draw pollinators",["attraction"]);
+Y("SW","Specialized leaf function: insectivorous and uncutinized leaves",["absorption"]);
+Y("SW","Brightly colored modified leaves that attract pollinators by mimicking flowers",["bracts","bract"]);
+Y("SW","Loss of water from plants in the form of water vapor",["transpiration"]);
+Y("SW","Exudation of water droplets from leaves",["guttation"]);
+Y("SW","Structures through which guttation droplets exit the leaf",["hydathodes","hydathode"]);
+Y("SW","Name one of the two methods of measuring transpiration",["weight loss","gas exchange"]);
+Y("SW","Name one environmental factor listed as influencing the rate of transpiration",["humidity","temperature","wind velocity","wind"]);
+
+/* ================= PHOTOSYNTHESIS ================= */
+T("PH","Photosynthesis converts light energy into chemical energy.",true,"Photo = light, synthesis = building up.");
+T("PH","Photosynthesis uses light, carbon dioxide, chlorophyll and water.",true,"");
+T("PH","Photosynthesis takes place in the mitochondria.",false,"It takes place in the chloroplast.");
+T("PH","Chlorophyll absorbs violet, blue and red light and is the main photosynthetic pigment.",true,"It reflects green.");
+T("PH","Carotenoids absorb light in the blue-green range and reflect yellow or orange.",true,"");
+T("PH","Xanthophyll is a type of carotenoid that reflects yellow light in leaves during fall.",true,"");
+T("PH","Phycocyanins absorb green and yellow light.",true,"");
+T("PH","Light-dependent reactions occur in the stroma of the chloroplast.",false,"They occur on the thylakoid membrane. The Calvin cycle is in the stroma.");
+T("PH","Light-dependent reactions cannot take place in the absence of light.",true,"");
+T("PH","Oxygen is released during the light-dependent reactions.",true,"ATP and NADPH are also produced.");
+T("PH","The Calvin cycle produces the ATP and NADPH used by the light-dependent reactions.",false,"The reverse: light-dependent reactions make ATP and NADPH for the Calvin cycle.");
+T("PH","In the light-independent reactions, CO2 is reduced to glucose.",true,"");
+T("PH","The light-independent reactions are the Calvin cycle.",true,"");
+T("PH","In the overall equation, water appears as both a reactant and a product.",true,"6CO2 + 12H2O -> C6H12O6 + 6O2 + 6H2O.");
+T("PH","Chlorophyll absorbs green light most strongly.",false,"Green is reflected, which is why leaves look green.");
+T("PH","All living things depend on the products of photosynthesis.",true,"");
+
+M("PH","Where does photosynthesis happen?","Chloroplast",["Mitochondrion","Nucleus","Vacuole"],"");
+M("PH","Where do the light-dependent reactions take place?","Thylakoid membrane",["Stroma","Cuticle","Cell wall"],"");
+M("PH","Where does the Calvin cycle take place?","Stroma",["Thylakoid membrane","Cytoplasm","Outer membrane"],"");
+M("PH","Which products of the light-dependent reactions feed the next stage?","ATP and NADPH",["Glucose and CO2","ADP and NADP+","Water and CO2"],"Oxygen is released.");
+M("PH","What are the main pigments for photosynthesis?","Chlorophyll a and chlorophyll b",["Carotenoids","Phycocyanins","Xanthophylls"],"");
+M("PH","Which pigment reflects yellow light in leaves during fall?","Xanthophyll",["Chlorophyll a","Phycocyanin","Chlorophyll b"],"");
+M("PH","Which pigment group absorbs green and yellow light?","Phycocyanins",["Carotenoids","Chlorophylls","Xanthophylls"],"");
+M("PH","Which colors of light does chlorophyll absorb?","Violet, blue and red",["Green and yellow","Yellow and orange","Green only"],"");
+M("PH","Which pigment group absorbs blue-green light and reflects yellow or orange?","Carotenoids",["Chlorophyll","Phycocyanins","Chlorophyll b"],"");
+M("PH","What is another name for the light-independent reactions?","Calvin cycle",["Krebs cycle","Electron transport","Glycolysis"],"");
+M("PH","What is the chemical formula for glucose, the product of photosynthesis?","C6H12O6",["CO2","H2O","O2"],"");
+M("PH","The raw materials of photosynthesis are:","Carbon dioxide and water (with light and chlorophyll)",["Glucose and oxygen","ATP and NADPH","Oxygen and water"],"");
+M("PH","Why do the light-dependent reactions come first?","They make the ATP and NADPH the Calvin cycle uses to reduce CO2",["They store glucose","They absorb CO2","They open the stomata"],"");
+M("PH","In the visible spectrum diagram, which range corresponds to red light?","625 to 740 nm",["380 to 440 nm","510 to 565 nm","565 to 590 nm"],"");
+M("PH","In the visible spectrum diagram, which range corresponds to violet?","380 to 440 nm",["625 to 740 nm","485 to 510 nm","590 to 625 nm"],"");
+M("PH","What is the order of colors from shortest to longest wavelength in the spectrum diagram?","Violet, blue, cyan, green, yellow, orange, red",["Red, orange, yellow, green, cyan, blue, violet","Violet, cyan, blue, green, orange, yellow, red","Blue, violet, cyan, yellow, green, orange, red"],"");
+
+Y("PH","Organelle where photosynthesis happens",["chloroplast"]);
+Y("PH","Main photosynthetic pigment that absorbs violet, blue and red light",["chlorophyll"]);
+Y("PH","Pigment group that absorbs blue-green light and reflects yellow or orange",["carotenoids","carotenoid"]);
+Y("PH","Type of carotenoid that reflects yellow light in leaves during fall",["xanthophyll"]);
+Y("PH","Pigments that absorb green and yellow light",["phycocyanins","phycocyanin"]);
+Y("PH","Part of the chloroplast where the light-dependent reactions occur (surface of this membrane)",["thylakoid","thylakoid membrane"]);
+Y("PH","Part of the chloroplast where the Calvin cycle takes place",["stroma"]);
+Y("PH","Another name for the light-independent reactions",["calvin cycle"]);
+Y("PH","Energy carrier produced in the light-dependent reactions (with NADPH)",["atp"]);
+Y("PH","Reducing carrier produced in the light-dependent reactions (with ATP)",["nadph"]);
+Y("PH","Sugar made when CO2 is reduced in the Calvin cycle",["glucose"]);
+Y("PH","Gas released during the light-dependent reactions",["oxygen","o2"]);
+Y("PH","Color of visible light covering 625 to 740 nm",["red"]);
+Y("PH","Spectrum color between blue and green (485 to 510 nm)",["cyan"]);
+Y("PH","The two phases of photosynthesis: light-dependent and ____",["light-independent","light independent","light-independent reactions","calvin cycle"]);
+
+/* ================= FLOWER PARTS & CLASSES ================= */
+T("FL","Flowers are modified shoots specialized for reproduction in angiosperms.",true,"");
+T("FL","A flower arises from the axil of a leaf.",true,"");
+T("FL","The pedicel is the base of the flower where the parts attach.",false,"That is the receptacle. The pedicel is the stalk that holds the flower.");
+T("FL","The calyx is the collective term for all sepals.",true,"");
+T("FL","The corolla is the collective term for all petals.",true,"");
+T("FL","The perianth is the collective term for sepals and petals together.",true,"");
+T("FL","Sepals are the colorful structures that attract pollinators.",false,"Petals attract pollinators. Sepals are green, leaf-like and protect the bud.");
+T("FL","The pistil (carpel) is the male reproductive organ of the flower.",false,"The pistil, or gynoecium, is female. The stamen is male.");
+T("FL","The style is the passageway for pollen from the stigma to the ovary.",true,"");
+T("FL","The stigma is the sticky tip of the style that pollen adheres to.",true,"");
+T("FL","The androecium is the collective term for the stamens.",true,"Each stamen has a filament and an anther.");
+T("FL","A complete flower has all four whorls: sepals, petals, stamens and pistil.",true,"");
+T("FL","A perfect flower has both stamens and a pistil.",true,"");
+T("FL","A staminate or pistillate flower is called imperfect.",true,"");
+T("FL","Squash (Cucurbita maxima) and watermelon (Citrullus lanatus) are incomplete and imperfect in the slides.",true,"");
+T("FL","Tulip (Tulipa) and Hibiscus rosa-sinensis are complete and perfect.",true,"");
+T("FL","Regular flowers have petals that are all similarly shaped.",true,"Irregular flowers have one or more petals of a different size.");
+T("FL","Papilionaceous, caesalpinaceous and orchidaceous are types of irregular flowers.",true,"");
+T("FL","A flower with radial symmetry can be divided into equal halves along only one plane.",false,"That is bilateral. Radial symmetry allows multiple planes.");
+T("FL","Actinomorphic is another name for radial symmetry, and zygomorphic is another name for bilateral symmetry.",true,"");
+T("FL","Vanda sanderiana and Phaseolus vulgaris are bilaterally symmetrical.",true,"Bellis perennis and Nymphaea odorata are radial.");
+T("FL","A hypogynous flower has a superior ovary with the other parts below it.",true,"");
+T("FL","An epigynous flower has an inferior ovary with the other parts above it.",true,"");
+T("FL","A perigynous flower has a half-inferior ovary with parts around it.",true,"");
+T("FL","In axile placentation, ovules attach to a central column.",true,"");
+T("FL","In basal placentation, ovules attach along the ovary wall.",false,"That is parietal. Basal ovules sit at the base of the ovary.");
+T("FL","Marginal placentation has ovules along one side of the ovary.",true,"");
+T("FL","Connation is the fusion of similar parts, such as petal to petal.",true,"");
+T("FL","Adnation is the fusion of unlike parts, such as petals to sepals.",true,"");
+T("FL","Hibiscus rosa-sinensis shows both connation and adnation.",true,"Allamanda and Plumeria show connation; Helianthus and Passiflora adnation; Ixora both.");
+
+M("FL","Which term is the collective name for all the petals?","Corolla",["Calyx","Perianth","Androecium"],"");
+M("FL","Which term is the collective name for all the sepals?","Calyx",["Corolla","Perianth","Gynoecium"],"");
+M("FL","Which term refers to sepals and petals together?","Perianth",["Calyx","Corolla","Androecium"],"");
+M("FL","Which term is the collective name for the male parts (stamens)?","Androecium",["Gynoecium","Perianth","Corolla"],"");
+M("FL","The pistil or carpel is also called the:","Gynoecium",["Androecium","Perianth","Receptacle"],"");
+M("FL","Which structure is the stalk that holds the flower?","Pedicel",["Receptacle","Style","Filament"],"");
+M("FL","Which structure is the base where the floral parts attach?","Receptacle",["Pedicel","Ovary","Calyx"],"");
+M("FL","The two parts of a stamen are:","Filament and anther",["Stigma and style","Ovary and ovule","Sepal and petal"],"");
+M("FL","The three parts of the pistil are:","Stigma, style and ovary",["Filament, anther and pollen","Sepal, petal and calyx","Pedicel, receptacle and style"],"");
+M("FL","Which part of the pistil contains the ovules?","Ovary",["Style","Stigma","Anther"],"");
+M("FL","A flower missing one or more of the four whorls is called:","Incomplete",["Imperfect","Irregular","Perfect"],"");
+M("FL","A flower with both stamen and pistil is called:","Perfect",["Complete","Imperfect","Regular"],"");
+M("FL","A flower that is only staminate or only pistillate is called:","Imperfect",["Incomplete","Irregular","Perfect"],"");
+M("FL","Which flower type has a superior ovary with other parts below it?","Hypogynous",["Perigynous","Epigynous","Parietal"],"");
+M("FL","Which flower type has an inferior ovary with other parts above it?","Epigynous",["Hypogynous","Perigynous","Basal"],"");
+M("FL","Which flower type has a half-inferior ovary with parts around it?","Perigynous",["Hypogynous","Epigynous","Axile"],"");
+M("FL","Ovules attached to the ovary wall describe which placentation?","Parietal",["Basal","Axile","Marginal"],"");
+M("FL","One ovule at the base of the ovary describes which placentation?","Basal",["Parietal","Axile","Marginal"],"");
+M("FL","Ovules attached to a central column describe which placentation?","Axile",["Parietal","Basal","Marginal"],"");
+M("FL","Ovules along one side of the ovary describe which placentation?","Marginal",["Parietal","Basal","Axile"],"");
+M("FL","Fusion of unlike parts (for example petals to sepals) is called:","Adnation",["Connation","Perigyny","Zygomorphy"],"");
+M("FL","Fusion of similar parts (petal to petal) is called:","Connation",["Adnation","Epigyny","Actinomorphy"],"");
+M("FL","Which flower shows adnation only in the slides?","Helianthus annuus (sunflower)",["Allamanda","Plumeria","Ixora"],"");
+M("FL","Which flower shows connation only in the slides?","Allamanda",["Helianthus annuus","Passiflora","Ixora"],"Plumeria also shows connation.");
+M("FL","Which flower shows both connation and adnation?","Ixora",["Allamanda","Plumeria","Passiflora"],"Hibiscus rosa-sinensis also shows both.");
+M("FL","Which flowers are radially symmetrical?","Bellis perennis and Nymphaea odorata",["Vanda sanderiana and Phaseolus vulgaris","Vanda sanderiana and Nymphaea","Phaseolus vulgaris and Bellis"],"");
+M("FL","Which flower is complete and perfect?","Tulipa",["Cucurbita maxima","Citrullus lanatus","None of them"],"");
+M("FL","Squash (Cucurbita maxima) is classified as:","Incomplete and imperfect",["Complete and perfect","Complete and imperfect","Incomplete and perfect"],"");
+M("FL","Which is NOT a type of irregular flower?","Actinomorphic",["Papilionaceous","Caesalpinaceous","Orchidaceous"],"Actinomorphic means radially symmetrical.");
+M("FL","Zygomorphic symmetry means the flower:","Can be divided into equal halves along only one plane",["Can be divided along many planes","Has no petals","Has a half-inferior ovary"],"");
+M("FL","In the epigynous flower diagram, the cup-like tissue around the ovary is labeled the:","Hypanthium",["Pedicel","Spathe","Rachis"],"");
+
+Y("FL","Stalk that holds the flower",["pedicel"]);
+Y("FL","Base of the flower where the parts attach",["receptacle"]);
+Y("FL","Green, leaf-like floral structure that protects the bud",["sepal","sepals"]);
+Y("FL","Collective term for all the sepals",["calyx"]);
+Y("FL","Colored floral structure inside the sepals that attracts pollinators",["petal","petals"]);
+Y("FL","Collective term for all the petals",["corolla"]);
+Y("FL","Collective term for the sepals and petals",["perianth"]);
+Y("FL","Female reproductive organ of the flower (any of its names)",["gynoecium","pistil","carpel"]);
+Y("FL","Enlarged basal part of the pistil that contains the ovules",["ovary"]);
+Y("FL","Structure inside the ovary that develops into a seed",["ovule","ovules"]);
+Y("FL","Passageway for pollen from the stigma to the ovary",["style"]);
+Y("FL","Sticky tip of the style where pollen adheres",["stigma"]);
+Y("FL","Essential male part of the flower",["stamen","stamens"]);
+Y("FL","Stalk part of the stamen",["filament"]);
+Y("FL","Part of the stamen that holds the pollen sacs",["anther"]);
+Y("FL","Collective term for all the stamens",["androecium"]);
+Y("FL","Flower with all four whorls",["complete","complete flower"]);
+Y("FL","Flower missing one or more whorls",["incomplete","incomplete flower"]);
+Y("FL","Flower with both stamen and pistil",["perfect","perfect flower"]);
+Y("FL","Flower that is staminate or pistillate only",["imperfect","imperfect flower"]);
+Y("FL","Flower with similarly shaped petals",["regular","regular flower"]);
+Y("FL","Flower with one or more petals of a different size",["irregular","irregular flower"]);
+Y("FL","Irregular flower type typical of beans (Phaseolus)",["papilionaceous"]);
+Y("FL","Irregular flower type, one of three listed, named after Caesalpinia",["caesalpinaceous"]);
+Y("FL","Irregular flower type typical of orchids",["orchidaceous"]);
+Y("FL","Symmetry that can be divided into equal halves along multiple planes (give the common name)",["radial","radial symmetry","actinomorphic"]);
+Y("FL","Symmetry that can be divided into equal halves along only one plane (give the common name)",["bilateral","bilateral symmetry","zygomorphic"]);
+Y("FL","Technical term for radial symmetry in flowers",["actinomorphic"]);
+Y("FL","Technical term for bilateral symmetry in flowers",["zygomorphic"]);
+Y("FL","Ovary position: superior ovary, other parts below",["hypogynous"]);
+Y("FL","Ovary position: half-inferior, parts around the ovary",["perigynous"]);
+Y("FL","Ovary position: inferior ovary, other parts above",["epigynous"]);
+Y("FL","Placentation: ovules along one side of the ovary",["marginal"]);
+Y("FL","Placentation: ovules attached to the ovary wall",["parietal"]);
+Y("FL","Placentation: ovule at the base of the ovary",["basal"]);
+Y("FL","Placentation: ovules attached to a central column",["axile"]);
+Y("FL","Fusion of similar floral parts (petal to petal, sepal to sepal)",["connation"]);
+Y("FL","Fusion of unlike floral parts (petals to sepals)",["adnation"]);
+Y("FL","Fusion type shown by Hibiscus rosa-sinensis (connation, adnation or both)",["both"]);
+
+/* ================= INFLORESCENCE & REPRODUCTION ================= */
+T("IR","An inflorescence is a cluster of flowers on a branch or system of branches.",true,"");
+T("IR","A spike has sessile flowers along an axis.",true,"Sessile means without stalks.");
+T("IR","A spadix has a fleshy axis surrounded by a spathe.",true,"");
+T("IR","A catkin is a drooping spike with unisexual flowers.",true,"");
+T("IR","A raceme has flowers on pedicels along a central axis.",true,"");
+T("IR","A panicle has an unbranched main axis.",false,"In a panicle the main axis is branched and bears stalked flowers.");
+T("IR","In a cyme, the main flower stalk has limited growth and the terminal flower blooms first.",true,"");
+T("IR","A corymb is flat-topped, with the lower flowers on longer stalks.",true,"");
+T("IR","In an umbel, pedicels arise from a single point.",true,"");
+T("IR","A capitulum (head) has sessile flowers crowded on a receptacle.",true,"");
+T("IR","A cyathium is cup-shaped with one central female flower and many reduced male flowers.",true,"");
+T("IR","A verticillaster is a false whorl formed by two opposite cymes at a node.",true,"");
+T("IR","A hypanthodium is a fleshy, hollow receptacle with flowers lining the inner surface.",true,"It opens at the top.");
+T("IR","Each anther has four lobes called pollen sacs.",true,"");
+T("IR","Microsporocytes are masses of dividing cells inside the pollen sacs.",true,"");
+T("IR","Microspore mother cells divide by meiosis to form microspores, which then undergo mitosis.",true,"");
+T("IR","A mature pollen grain contains two nuclei.",true,"The generative cell and the tube cell.");
+T("IR","A megaspore mother cell divides by meiosis into four megaspores, and all four survive.",false,"Only one survives and undergoes three mitotic divisions to form the embryo sac.");
+T("IR","Pollination is the transfer of pollen from the stamen to the stigma.",true,"");
+T("IR","Self-pollination ensures reproduction when pollinators are scarce but gives less genetic variation.",true,"");
+T("IR","Cross-pollination increases genetic diversity but often requires pollinators.",true,"");
+T("IR","Self-pollination increases genetic diversity.",false,"It results in less genetic variation.");
+T("IR","Monoecious plants have separate male and female individuals.",false,"That is dioecious. Monoecious plants carry both sexes on one plant.");
+T("IR","Dioecious plants have male and female organs on separate individual plants.",true,"");
+T("IR","A hermaphrodite plant bears flowers that have both male and female parts.",true,"");
+T("IR","Double fertilization produces a zygote and a triploid endosperm nucleus.",true,"");
+
+M("IR","Sessile flowers arranged along an axis form a:","Spike",["Raceme","Panicle","Umbel"],"");
+M("IR","A fleshy axis surrounded by a spathe is a:","Spadix",["Spike","Catkin","Cyme"],"");
+M("IR","A drooping spike of unisexual flowers is a:","Catkin",["Spadix","Raceme","Corymb"],"");
+M("IR","Flowers on pedicels along a central axis form a:","Raceme",["Spike","Panicle","Capitulum"],"");
+M("IR","A branched main axis with stalked flowers is a:","Panicle",["Raceme","Spike","Umbel"],"");
+M("IR","Limited main-stalk growth with the terminal flower blooming first is a:","Cyme",["Raceme","Corymb","Spike"],"");
+M("IR","A flat-topped cluster where lower flowers have longer stalks is a:","Corymb",["Umbel","Cyme","Panicle"],"");
+M("IR","Pedicels arising from a single point form a:","Umbel",["Corymb","Raceme","Capitulum"],"");
+M("IR","Sessile flowers crowded on a receptacle form a:","Capitulum (head)",["Spike","Umbel","Cyathium"],"");
+M("IR","A cup-shaped inflorescence with one central female flower and many reduced male flowers is a:","Cyathium",["Hypanthodium","Verticillaster","Capitulum"],"");
+M("IR","A false whorl formed by two opposite cymes at a node is a:","Verticillaster",["Cyathium","Corymb","Hypanthodium"],"");
+M("IR","A fleshy, hollow receptacle with flowers lining the inner surface is a:","Hypanthodium",["Cyathium","Capitulum","Spadix"],"");
+M("IR","The four lobes of an anther are called:","Pollen sacs",["Ovules","Carpels","Locules of the ovary"],"");
+M("IR","The mass of dividing cells in each pollen sac is called:","Microsporocytes",["Megaspores","Embryo sacs","Synergids"],"");
+M("IR","Microspore mother cells undergo meiosis to form:","Microspores",["Megaspores","Zygotes","Embryo sacs"],"");
+M("IR","How many megaspores does a megaspore mother cell form by meiosis?","Four",["Two","Eight","One"],"");
+M("IR","Three mitotic divisions of the surviving megaspore form the:","Embryo sac",["Pollen grain","Zygote","Endosperm"],"");
+M("IR","Self-pollination occurs when:","Pollen falls from the anther onto the stigma of the same flower",["Pollen lands on another plant's stigma","Pollen is carried to a different species","Seeds are scattered by wind"],"");
+M("IR","A disadvantage of cross-pollination is that it:","Often requires pollinators such as insects or wind",["Reduces genetic variation","Cannot produce seeds","Happens only in monoecious plants"],"");
+M("IR","An advantage of self-pollination is that it:","Ensures reproduction when pollinators are scarce",["Increases genetic diversity","Needs insect pollinators","Works only between species"],"");
+M("IR","Plants with male and female organs on the same individual are:","Monoecious",["Dioecious","Hermaphroditic only","Heterosporous"],"");
+M("IR","Plants with separate male and female individuals are:","Dioecious",["Monoecious","Perfect","Complete"],"");
+M("IR","In the pollen grain, the two cells labeled in the life cycle diagram are the:","Generative cell and tube cell",["Egg cell and synergid","Antipodal and polar nucleus","Zygote and endosperm"],"");
+M("IR","Which are cells or nuclei of the embryo sac in the life cycle diagram?","Egg cell, synergids, polar nuclei, antipodals",["Generative cell, tube cell","Filament, anther","Pedicel, receptacle"],"");
+
+Y("IR","Inflorescence: sessile flowers along an axis",["spike"]);
+Y("IR","Inflorescence: fleshy axis surrounded by a spathe",["spadix"]);
+Y("IR","Large bract that surrounds a spadix",["spathe"]);
+Y("IR","Inflorescence: drooping spike with unisexual flowers",["catkin"]);
+Y("IR","Inflorescence: flowers on pedicels along a central axis",["raceme"]);
+Y("IR","Inflorescence: main axis is branched with stalked flowers",["panicle"]);
+Y("IR","Inflorescence: limited main stalk growth, terminal flower blooms first",["cyme"]);
+Y("IR","Inflorescence: flat-topped, lower flowers have longer stalks",["corymb"]);
+Y("IR","Inflorescence: pedicels arise from a single point",["umbel"]);
+Y("IR","Inflorescence: sessile flowers crowded on a receptacle (give either name)",["capitulum","head"]);
+Y("IR","Inflorescence: cup-shaped with one central female flower and many reduced male flowers",["cyathium"]);
+Y("IR","Inflorescence: false whorl formed by two opposite cymes at a node",["verticillaster"]);
+Y("IR","Inflorescence: fleshy, hollow receptacle with flowers lining the inside",["hypanthodium"]);
+Y("IR","The four lobes of an anther",["pollen sacs","pollen sac"]);
+Y("IR","Mass of dividing cells inside each pollen sac",["microsporocytes","microsporocyte"]);
+Y("IR","Haploid products of meiosis in the anther, which then divide by mitosis into pollen grains",["microspores","microspore"]);
+Y("IR","Haploid products of meiosis in the ovule: four form, but only one survives",["megaspores","megaspore"]);
+Y("IR","Structure formed after three mitotic divisions of the surviving megaspore",["embryo sac"]);
+Y("IR","Transfer of pollen grains from the stamen to the stigma",["pollination"]);
+Y("IR","Pollination within the same flower (pollen falls from anther onto its own stigma)",["self-pollination","self pollination"]);
+Y("IR","Pollination between flowers on different plants of the same species",["cross-pollination","cross pollination"]);
+Y("IR","Plants with male and female organs on the same individual",["monoecious"]);
+Y("IR","Plants with male and female organs on separate individuals",["dioecious"]);
+Y("IR","Plant or flower bearing both male and female parts, shown beside monoecious and dioecious",["hermaphrodite","hermaphrodite flower","hermaphrodite plant"]);
+Y("IR","Cell in the pollen grain that forms the sperm cells (life cycle diagram)",["generative cell"]);
+Y("IR","Pollen grain cell that forms the pollen tube",["tube cell"]);
+Y("IR","Female gamete in the embryo sac",["egg cell","egg"]);
+Y("IR","Two nuclei in the embryo sac that fuse with a sperm to form the endosperm",["polar nuclei","polar nucleus"]);
+Y("IR","Cells flanking the egg cell in the embryo sac",["synergids","synergid"]);
+Y("IR","Cells at the end of the embryo sac opposite the micropyle",["antipodals","antipodal cells","antipodal"]);
+Y("IR","Fertilization process in which one sperm forms the zygote and another forms the endosperm",["double fertilization"]);
+Y("IR","Cell formed when a sperm fuses with the egg",["zygote"]);
+
+/* ================= FRUITS ================= */
+T("FR","Fruits are mature ovaries of flowering plants.",true,"All fruits arise from flowers.");
+T("FR","The pericarp is the mature ovary wall of the fruit.",true,"");
+T("FR","The exocarp is the innermost layer of the pericarp.",false,"The exocarp is the outermost layer. The endocarp is innermost.");
+T("FR","The mesocarp is the middle layer of the pericarp.",true,"");
+T("FR","In a fleshy fruit, the mesocarp is fleshy at maturity.",true,"");
+T("FR","In a dry fruit, the mesocarp is definitely dry at maturity.",true,"");
+T("FR","Simple fleshy fruits develop from a flower with a single pistil.",true,"Berry, pepo, hesperidium, pome and drupe.");
+T("FR","Aggregate fruits develop from a single flower with several pistils.",true,"Example: strawberry.");
+T("FR","Multiple fruits develop from many flowers (an inflorescence) whose ovaries fuse.",true,"Examples: pineapple, jackfruit.");
+T("FR","Strawberry is a multiple fruit.",false,"It is an aggregate fruit.");
+T("FR","In a berry, the entire pericarp is fleshy.",true,"Examples: tomato and grape.");
+T("FR","A pepo has a hard rind and an inferior ovary.",true,"Examples: cucumber and squash.");
+T("FR","A hesperidium has a leathery rind and juice sacs.",true,"Examples: orange and calamansi.");
+T("FR","A pome develops from a fleshy receptacle.",true,"Examples: apple and pear.");
+T("FR","A drupe has a hard endocarp enclosing the seed.",true,"Examples: mango and coconut.");
+T("FR","Dehiscent fruits split open at maturity to release seeds.",true,"");
+T("FR","In indehiscent dry fruits, the single seed is fused or attached to the pericarp.",true,"");
+T("FR","A legume splits along two seams, while a follicle splits along one seam.",true,"");
+T("FR","A samara is a winged fruit.",true,"Example: mahogany.");
+T("FR","A caryopsis has its seed coat fused to the pericarp.",true,"Example: rice.");
+T("FR","A schizocarp splits into segments, as in carrot.",true,"");
+T("FR","An achene is a dry dehiscent fruit.",false,"It is indehiscent, with a loose seed (sunflower).");
+T("FR","A capsule splits open in many ways, as in cotton.",true,"");
+T("FR","A silique has two valves with the seeds central, as in mustard.",true,"");
+
+M("FR","What is the pericarp?","The mature ovary wall of the fruit",["The seed coat","The receptacle","The ovule"],"");
+M("FR","Which pericarp layer is the outermost?","Exocarp",["Mesocarp","Endocarp","Receptacle"],"");
+M("FR","Which pericarp layer is the middle layer?","Mesocarp",["Exocarp","Endocarp","Receptacle"],"");
+M("FR","Which pericarp layer is the innermost?","Endocarp",["Exocarp","Mesocarp","Ovule wall"],"");
+M("FR","What distinguishes a fleshy fruit from a dry fruit?","Whether the mesocarp is fleshy or dry at maturity",["Number of seeds","Whether it has a receptacle","Whether it comes from a flower"],"");
+M("FR","Which of these is a simple fleshy fruit?","Pepo",["Capsule","Samara","Achene"],"");
+M("FR","Which fruit type develops from a single flower with several pistils?","Aggregate fruit",["Multiple fruit","Simple fruit","Pome"],"");
+M("FR","Which fruit type develops from many flowers whose ovaries fuse?","Multiple fruit",["Aggregate fruit","Berry","Hesperidium"],"");
+M("FR","Tomato and grape are examples of:","Berry",["Pepo","Drupe","Pome"],"");
+M("FR","Cucumber and squash are examples of:","Pepo",["Berry","Hesperidium","Drupe"],"");
+M("FR","Orange and calamansi are examples of:","Hesperidium",["Berry","Pepo","Pome"],"");
+M("FR","Apple and pear are examples of:","Pome",["Drupe","Berry","Achene"],"");
+M("FR","Mango and coconut are examples of:","Drupe",["Berry","Pome","Nut"],"");
+M("FR","Strawberry is an example of:","Aggregate fruit",["Multiple fruit","Berry","Pome"],"");
+M("FR","Pineapple and jackfruit are examples of:","Multiple fruits",["Aggregate fruits","Berries","Drupes"],"");
+M("FR","Which dry dehiscent fruit splits open in many ways, as in cotton?","Capsule",["Legume","Silique","Follicle"],"");
+M("FR","Peanut is which kind of dry dehiscent fruit?","Legume (pod)",["Capsule","Silique","Follicle"],"");
+M("FR","Mustard is which kind of dry dehiscent fruit?","Silique",["Legume","Capsule","Follicle"],"");
+M("FR","Calotropis is which kind of dry dehiscent fruit?","Follicle",["Silique","Capsule","Legume"],"");
+M("FR","Sunflower fruit is which type?","Achene",["Caryopsis","Samara","Nut"],"");
+M("FR","Rice grain is which type?","Caryopsis",["Achene","Nut","Schizocarp"],"");
+M("FR","Mahogany fruit is which type?","Samara",["Schizocarp","Nut","Achene"],"");
+M("FR","Carrot fruit is which type?","Schizocarp",["Samara","Achene","Capsule"],"");
+M("FR","Acorn is which type?","Nut",["Achene","Caryopsis","Samara"],"");
+M("FR","Which of these is an indehiscent dry fruit?","Samara",["Capsule","Legume","Follicle"],"");
+M("FR","Which of these is a dehiscent dry fruit?","Silique",["Achene","Nut","Caryopsis"],"");
+
+Y("FR","Mature ovary wall of a fruit",["pericarp"]);
+Y("FR","Outermost layer of the pericarp",["exocarp"]);
+Y("FR","Middle layer of the pericarp",["mesocarp"]);
+Y("FR","Innermost layer of the pericarp",["endocarp"]);
+Y("FR","Category of fruit that includes berries, pomes and drupes",["fleshy fruit","fleshy"]);
+Y("FR","Category of fruit that includes capsules, legumes, achenes and nuts",["dry fruit","dry"]);
+Y("FR","Fruit type from a single flower with several pistils (strawberry)",["aggregate","aggregate fruit"]);
+Y("FR","Fruit type from many fused flowers (pineapple, jackfruit)",["multiple","multiple fruit"]);
+Y("FR","Simple fleshy fruit with an entirely fleshy pericarp (tomato, grape)",["berry"]);
+Y("FR","Simple fleshy fruit with a hard rind and inferior ovary (cucumber, squash)",["pepo"]);
+Y("FR","Simple fleshy fruit with a leathery rind and juice sacs (orange, calamansi)",["hesperidium"]);
+Y("FR","Simple fleshy fruit formed from a fleshy receptacle (apple, pear)",["pome"]);
+Y("FR","Simple fleshy fruit with a hard endocarp around the seed (mango, coconut)",["drupe"]);
+Y("FR","Dry dehiscent fruit that splits open in many ways (cotton)",["capsule"]);
+Y("FR","Dry dehiscent fruit that splits on two seams (peanut)",["legume","pod","legume pod"]);
+Y("FR","Dry dehiscent fruit with two valves and seeds central (mustard)",["silique"]);
+Y("FR","Dry dehiscent fruit that splits along one seam (Calotropis)",["follicle"]);
+Y("FR","Dry indehiscent fruit with a loose seed (sunflower)",["achene"]);
+Y("FR","Dry indehiscent fruit whose seed coat is fused to the pericarp (rice)",["caryopsis"]);
+Y("FR","Winged dry indehiscent fruit (mahogany)",["samara"]);
+Y("FR","Dry indehiscent fruit that splits into segments (carrot)",["schizocarp"]);
+Y("FR","Dry indehiscent fruit with a hard, single seed (acorn)",["nut"]);
+Y("FR","Dry fruits that split open at maturity are called ____",["dehiscent"]);
+Y("FR","Dry fruits that do not split open, with the seed attached to the pericarp, are called ____",["indehiscent"]);
+
+/* ================= SEEDS ================= */
+T("SD","Seeds are mature ovules that contain the embryo, stored food and a protective coat.",true,"");
+T("SD","The seed coat is derived from the ovule wall.",true,"");
+T("SD","The endosperm is responsible for food storage inside the seed.",true,"");
+T("SD","The embryo is the baby plant inside the seed.",true,"");
+T("SD","A dicot seed has two cotyledons and its embryo consists of radicle, plumule and the cotyledons.",true,"");
+T("SD","In dicot seeds the endosperm is often absorbed before germination.",true,"");
+T("SD","A monocot seed has a single cotyledon called the scutellum.",true,"");
+T("SD","In monocot seeds the seed coat and the fruit wall are fused together.",true,"");
+T("SD","In monocot seeds the endosperm remains as the food reserve.",true,"");
+T("SD","Corn (Zea mays) is a dicotyledonous seed.",false,"Corn is monocotyledonous. Mung bean (Vigna radiata) is the dicot example.");
+T("SD","In epigeal germination, cotyledons are pushed above the soil.",true,"");
+T("SD","In hypogeal germination, cotyledons stay below ground.",true,"");
+T("SD","Dormancy ensures germination happens only under favorable conditions.",true,"");
+T("SD","A hard, water-impermeable seed coat can keep a seed dormant.",true,"Other causes: immature embryo, lack of light or suitable temperature.");
+T("SD","Seed germination is the process by which a dormant embryo grows out of the seed coat and becomes a seedling.",true,"");
+T("SD","Self-dispersal relies on forceful ejection or explosive mechanisms, as in balsam.",true,"Also Acacia and Kamantigue.");
+T("SD","Wings, parachute and censer mechanisms are adaptations for dispersal by animals.",false,"They are adaptations for dispersal by wind.");
+T("SD","Many fleshy fruits are dispersed by birds that eat them and drop or excrete the seeds elsewhere.",true,"");
+T("SD","Buoyant fruits and very light seeds that float are dispersed by water.",true,"");
+T("SD","In the monocot seed diagram, the coleoptile, epicotyl, hypocotyl and radicle are all part of the embryo.",true,"");
+
+M("SD","Which seed part is the baby plant?","Embryo",["Endosperm","Seed coat","Hilum"],"");
+M("SD","Which seed part is derived from the ovule wall and protects the seed?","Seed coat",["Embryo","Endosperm","Cotyledon"],"");
+M("SD","Which seed part stores food?","Endosperm",["Seed coat","Plumule","Radicle"],"");
+M("SD","How many cotyledons does a dicot seed have?","Two",["One","Three","None"],"");
+M("SD","The single cotyledon of a monocot seed is called the:","Scutellum",["Plumule","Radicle","Hilum"],"");
+M("SD","Which part of the embryo develops into the shoot?","Plumule",["Radicle","Hilum","Scutellum"],"");
+M("SD","Which part of the embryo develops into the root?","Radicle",["Plumule","Coleoptile","Epicotyl"],"");
+M("SD","In the mung bean image, which label marks the scar on the seed coat?","Hilum",["Plumule","Radicle","Cotyledon"],"");
+M("SD","Which is the dicotyledonous example used in the lesson?","Mung bean (Vigna radiata)",["Corn (Zea mays)","Rice (Oryza sativa)","Banana (Musa)"],"");
+M("SD","Which is the monocotyledonous example used in the lesson?","Corn (Zea mays)",["Mung bean (Vigna radiata)","Bean","Pechay"],"");
+M("SD","In which seed type are the seed coat and the fruit wall fused?","Monocot",["Dicot","Both","Neither"],"");
+M("SD","In which seed type is the endosperm often absorbed before germination?","Dicot",["Monocot","Both","Neither"],"");
+M("SD","Which structures are labeled on the monocot corn seed beyond the cotyledon and radicle?","Coleoptile, epicotyl and hypocotyl",["Plumule and hilum only","Calyx and corolla","Pedicel and receptacle"],"");
+M("SD","Cotyledons pushed above the soil during germination is called:","Epigeal germination",["Hypogeal germination","Dormancy","Dispersal"],"");
+M("SD","Cotyledons staying below ground during germination is called:","Hypogeal germination",["Epigeal germination","Pollination","Dormancy"],"");
+M("SD","Which is NOT a listed cause of seed dormancy?","Excess pollination",["Hard seed coat impermeable to water","Immature embryo","Lack of light or suitable temperature"],"");
+M("SD","What is the purpose of dormancy?","To ensure germination only under favorable conditions",["To speed up germination","To attract pollinators","To store sugars"],"");
+M("SD","Balsam, Acacia and Kamantigue disperse seeds by:","Self-dispersal (explosive ejection)",["Wind","Animals","Water"],"");
+M("SD","Which mechanism is NOT a wind-dispersal adaptation listed?","Buoyancy",["Wings","Parachute mechanism","Censer mechanism"],"Buoyancy is for water dispersal.");
+M("SD","Which is a wind-dispersal feature?","Hairs",["Spines that hook fur","Buoyant husk","Explosive pod"],"Wind: wings, parachute, censer, hairs, papery seeds, light seeds.");
+M("SD","Fleshy fruits eaten by birds are an example of dispersal by:","Animals",["Wind","Water","Self-dispersal"],"");
+M("SD","Buoyant fruits that float illustrate dispersal by:","Water",["Wind","Animals","Self-dispersal"],"");
+M("SD","In the bean and corn diagram, the structures labeled 'first true leaves' are part of the:","Embryo",["Seed coat","Endosperm","Fruit wall"],"");
+
+Y("SD","Baby plant inside the seed",["embryo"]);
+Y("SD","Protective layer of the seed derived from the ovule wall",["seed coat"]);
+Y("SD","Seed tissue responsible for food storage",["endosperm"]);
+Y("SD","Seed leaf (term used for the one or two storage leaves of the embryo)",["cotyledon","cotyledons"]);
+Y("SD","Embryonic root of the seed",["radicle"]);
+Y("SD","Embryonic shoot of the seed",["plumule"]);
+Y("SD","Scar on the seed coat labeled on the mung bean",["hilum"]);
+Y("SD","Name of the single cotyledon of a monocot seed",["scutellum"]);
+Y("SD","Sheath protecting the shoot in the corn seed diagram (starts with coleo-)",["coleoptile"]);
+Y("SD","Part of the corn embryo labeled above the cotyledon attachment (epi-)",["epicotyl"]);
+Y("SD","Part of the corn embryo labeled between the cotyledon and radicle (hypo-)",["hypocotyl"]);
+Y("SD","Germination in which cotyledons are pushed above the soil",["epigeal","epigeal germination"]);
+Y("SD","Germination in which cotyledons stay below ground",["hypogeal","hypogeal germination"]);
+Y("SD","Process by which a dormant embryo grows out of the seed coat and becomes a seedling",["germination","seed germination"]);
+Y("SD","State in which seeds wait for favorable conditions before germinating",["dormancy","seed dormancy"]);
+Y("SD","Spreading of fruits and seeds to distant places",["seed dispersal","dispersal"]);
+Y("SD","Dispersal by forceful ejection or explosive mechanism (balsam, acacia)",["self-dispersal","self dispersal"]);
+Y("SD","Wind dispersal mechanism in which seeds are shaken out of an opening fruit swaying on its stalk",["censer","censer mechanism"]);
+Y("SD","Wind dispersal mechanism in which a tuft of hairs lets the seed drift down like a falling canopy (name the mechanism)",["parachute","parachute mechanism"]);
+Y("SD","Scientific name of mung bean",["vigna radiata"]);
+Y("SD","Scientific name of corn",["zea mays"]);
+Y("SD","Name the three external agents of seed dispersal: wind, animals and ____",["water"]);
+
+/* extra recall items for sub-terms */
+Y("LM","The tip of the leaf blade",["apex"]);
+Y("LM","Part of the leaf that attaches it to the stem",["leaf base"]);
+Y("LM","The arrangement of leaves on a stem",["phyllotaxy"]);
+Y("LA","Reactions of photosynthesis that need light and occur on the thylakoid membrane (full name)",["light-dependent reactions","light dependent reactions","light-dependent","light dependent"]);
+Y("SW","Protective leaf structures that cover a dormant bud",["bud scales","bud scale"]);
+Y("SW","Protective leaves that move in response to touch",["motile leaves","motile leaf","motile"]);
+Y("SW","Sharp, pointed protective leaf modifications",["spines","spine"]);
+Y("SW","Leaf type that retains water and stores food",["succulent leaves","succulent","succulents"]);
+Y("SW","Leaves that trap and absorb nutrients from insects",["insectivorous leaves","insectivorous"]);
+Y("SW","Absorptive leaves that lack a cuticle",["uncutinized leaves","uncutinized"]);
+Y("FL","Imperfect flower that has only stamens",["staminate","staminate flower"]);
+Y("FL","Imperfect flower that has only a pistil",["pistillate","pistillate flower"]);
+Y("FL","Cup-like tissue around the ovary labeled in the perigynous and epigynous diagrams",["hypanthium"]);
+Y("SD","External agent that disperses fleshy fruits, such as birds that eat and excrete the seeds",["animals","animal","by animals"]);
+Y("SD","Wind-dispersal feature: seeds so thin and flaky they flutter (name the seed type)",["papery seeds","papery"]);
+Y("SD","Type of fruits that float, helping dispersal by water",["buoyant","buoyant fruits"]);
+Y("SD","Name one plant given as an example of self-dispersal (explosive ejection)",["balsam","acacia","kamantigue"]);
+
+/* ================= ENGINE ================= */
+const TYPES={tf:"True or false",mc:"Multiple choice",ty:"Typing"};
+const TLAB={tf:"Concept",mc:"Concept + terms",ty:"Recall"};
+const $=id=>document.getElementById(id);
+const sel={topics:new Set(Object.keys(TOPICS)),types:new Set(["tf","mc","ty"]),len:0};
+let pool=[],i=0,log=[],done=false,missedOnly=null;
+
+const shuffle=a=>{a=a.slice();for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const norm=s=>s.toLowerCase().replace(/[^a-z0-9 ]+/g," ").replace(/\s+/g," ").trim();
+function lev(a,b){const m=a.length,n=b.length,d=[];for(let x=0;x<=m;x++){d[x]=[x];}for(let y=0;y<=n;y++)d[0][y]=y;
+  for(let x=1;x<=m;x++)for(let y=1;y<=n;y++)d[x][y]=Math.min(d[x-1][y]+1,d[x][y-1]+1,d[x-1][y-1]+(a[x-1]===b[y-1]?0:1));return d[m][n]}
+function typedOk(g,acc){g=norm(g);if(!g)return false;return acc.some(a=>{a=norm(a);if(g===a)return true;const tol=a.length>=12?2:a.length>=6?1:0;return tol>0&&lev(g,a)<=tol})}
+
+/* home */
+function matching(){return BANK.filter(q=>sel.topics.has(q.t)&&sel.types.has(q.k))}
+function renderHome(){
+  const c=k=>BANK.filter(q=>q.k===k).length;
+  $("bankSum").textContent=BANK.length+" questions: "+c("tf")+" true/false, "+c("mc")+" multiple choice, "+c("ty")+" typing";
+  $("topicChips").innerHTML=Object.entries(TOPICS).map(([k,v])=>`<button class="chip" data-t="${k}" aria-pressed="${sel.topics.has(k)}">${v}<span class="n">${BANK.filter(q=>q.t===k).length}</span></button>`).join("");
+  $("typeChips").innerHTML=Object.entries(TYPES).map(([k,v])=>`<button class="chip" data-k="${k}" aria-pressed="${sel.types.has(k)}">${v}<span class="n">${c(k)}</span></button>`).join("");
+  const n=matching().length;
+  $("lenChips").innerHTML=[[0,"All"],[25,"25"],[50,"50"],[100,"100"]].map(([v,l])=>`<button class="chip" data-l="${v}" aria-pressed="${sel.len===v}">${l}</button>`).join("");
+  $("poolSum").textContent=n?Math.min(n,sel.len||n)+" of "+n+" matching questions":"Select at least one topic and type";
+  $("start").disabled=!n;
+}
+$("topicChips").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;const k=b.dataset.t;sel.topics.has(k)?sel.topics.delete(k):sel.topics.add(k);renderHome()};
+$("typeChips").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const k=b.dataset.k;sel.types.has(k)?sel.types.delete(k):sel.types.add(k);renderHome()};
+$("lenChips").onclick=e=>{const b=e.target.closest("[data-l]");if(!b)return;sel.len=+b.dataset.l;renderHome()};
+$("allTopics").onclick=()=>{sel.topics=new Set(Object.keys(TOPICS));renderHome()};
+$("noTopics").onclick=()=>{sel.topics=new Set();renderHome()};
+$("start").onclick=()=>{let p=shuffle(matching());if(sel.len)p=p.slice(0,sel.len);begin(p)};
+
+function show(id){["home","quiz","results"].forEach(x=>$(x).hidden=x!==id);window.scrollTo(0,0)}
+function begin(p){pool=p;i=0;log=[];show("quiz");renderQ()}
+
+/* question */
+function renderQ(){
+  const q=pool[i];done=false;
+  $("qcount").textContent="Question "+(i+1)+" of "+pool.length;
+  $("qscore").textContent=log.filter(x=>x.ok).length+" correct";
+  $("qbar").style.width=(i/pool.length*100)+"%";
+  $("qtags").innerHTML=`<span class="tag ${q.k}">${TYPES[q.k]}</span><span class="tag topic">${TOPICS[q.t]}</span>`;
+  $("fb").hidden=true;$("secondary").hidden=true;
+  const body=$("qbody");
+  if(q.k==="tf"){
+    $("qtext").textContent=q.q;
+    body.innerHTML=`<div class="opts tfgrid"><button class="opt" data-v="true">True</button><button class="opt" data-v="false">False</button></div>`;
+    $("primary").hidden=true;
+  }else if(q.k==="mc"){
+    $("qtext").textContent=q.q;
+    q.opts=shuffle([q.c,...q.w]);
+    body.innerHTML=`<div class="opts">`+q.opts.map((o,n)=>`<button class="opt" data-v="${n}"><span class="k">${"ABCD"[n]}</span><span>${esc(o)}</span></button>`).join("")+`</div>`;
+    $("primary").hidden=true;
+  }else{
+    $("qtext").textContent=q.q;
+    body.innerHTML=`<input class="ans" id="ans" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Type your answer" aria-label="Your answer">`;
+    $("primary").hidden=false;$("primary").textContent="Check";$("secondary").hidden=false;
+    setTimeout(()=>$("ans")&&$("ans").focus(),30);
+  }
+}
+function finish(ok,given,shown){
+  done=true;const q=pool[i];
+  log.push({q,ok,given});
+  const fb=$("fb");fb.className="fb "+(ok?"good":"bad");fb.hidden=false;
+  const why=q.e?`<span class="why">${esc(q.e)}</span>`:"";
+  fb.innerHTML=`<b>${ok?"Correct.":"Not quite."}</b> ${shown?esc(shown):""}${why}`;
+  $("qscore").textContent=log.filter(x=>x.ok).length+" correct";
+  $("primary").hidden=false;$("primary").textContent=i===pool.length-1?"See results":"Next";$("secondary").hidden=true;
+  $("primary").focus();
+}
+$("qbody").onclick=e=>{
+  const b=e.target.closest(".opt");if(!b||done)return;const q=pool[i];
+  const all=[...document.querySelectorAll("#qbody .opt")];
+  if(q.k==="tf"){
+    const ok=(b.dataset.v==="true")===q.a;
+    all.forEach(x=>{x.disabled=true;if((x.dataset.v==="true")===q.a)x.classList.add("good")});
+    if(!ok)b.classList.add("bad");
+    finish(ok,b.textContent,ok?"":"The statement is "+(q.a?"true.":"false."));
+  }else if(q.k==="mc"){
+    const ci=q.opts.indexOf(q.c),pick=+b.dataset.v,ok=pick===ci;
+    all.forEach((x,n)=>{x.disabled=true;if(n===ci)x.classList.add("good")});
+    if(!ok)b.classList.add("bad");
+    finish(ok,q.opts[pick],ok?"":"Answer: "+q.c+".");
+  }
+};
+function checkTyped(){
+  if(done)return;const q=pool[i],inp=$("ans"),g=inp.value;
+  if(!g.trim()){inp.focus();return}
+  const ok=typedOk(g,q.a);inp.disabled=true;inp.classList.add(ok?"good":"bad");
+  finish(ok,g,"Answer: "+q.a[0]+(q.a.length>1?" (also accepted: "+q.a.slice(1).join(", ")+")":"")+".");
+}
+$("secondary").onclick=()=>{if(done)return;const q=pool[i];$("ans").disabled=true;finish(false,"(skipped)","Answer: "+q.a[0]+(q.a.length>1?" (also accepted: "+q.a.slice(1).join(", ")+")":"")+".")};
+$("primary").onclick=()=>{
+  if(!done){checkTyped();return}
+  if(i===pool.length-1){results();return}
+  i++;renderQ();
+};
+$("quit").onclick=()=>{if(log.length)results();else{show("home");renderHome()}};
+document.addEventListener("keydown",e=>{
+  if($("quiz").hidden)return;
+  if(e.key==="Enter"){if(done||(pool[i]&&pool[i].k==="ty")){e.preventDefault();$("primary").click()}return}
+  if(done||e.target.tagName==="INPUT"||e.ctrlKey||e.metaKey)return;
+  const q=pool[i];
+  if(q.k==="tf"){if(e.key==="t"||e.key==="T")document.querySelector('[data-v="true"]').click();if(e.key==="f"||e.key==="F")document.querySelector('[data-v="false"]').click()}
+  if(q.k==="mc"){const n="abcd".indexOf(e.key.toLowerCase());const m=n>=0?n:"1234".indexOf(e.key);if(m>=0&&m<q.opts.length)document.querySelector('[data-v="'+m+'"]').click()}
+});
+
+/* results */
+function rows(groupFn,labels){
+  const m={};log.forEach(x=>{const k=groupFn(x.q);(m[k]=m[k]||{n:0,c:0});m[k].n++;if(x.ok)m[k].c++});
+  return Object.entries(m).map(([k,v])=>{const p=Math.round(v.c/v.n*100);return `<div class="brow"><span>${esc(labels[k])}</span><div class="bar"><i style="width:${p}%"></i></div><span class="pc">${v.c}/${v.n}</span></div>`}).join("");
+}
+function results(){
+  show("results");
+  const c=log.filter(x=>x.ok).length,n=log.length,p=Math.round(c/n*100);
+  $("rScore").textContent=p+"%";
+  $("rLine").textContent=c+" of "+n+" correct"+(n<pool.length?" (ended early, "+(pool.length-n)+" unanswered)":"")+".";
+  $("byType").innerHTML=rows(q=>q.k,TYPES);
+  $("byTopic").innerHTML=rows(q=>q.t,TOPICS);
+  const miss=log.filter(x=>!x.ok);
+  missedOnly=miss.map(x=>x.q);
+  $("retryMissed").hidden=!miss.length;
+  $("missed").innerHTML=miss.length?miss.map(x=>{const q=x.q;
+    const corr=q.k==="tf"?(q.a?"True":"False"):q.k==="mc"?q.c:q.a[0];
+    return `<div class="miss"><span class="tag ${q.k}">${TYPES[q.k]}</span> <span class="tag topic">${TOPICS[q.t]}</span><p>${esc(q.q)}</p><p><span class="ya">You: ${esc(x.given)}</span> &middot; <span class="ca">Answer: ${esc(corr)}</span></p>${q.e?`<p class="sum" style="font-family:var(--body)">${esc(q.e)}</p>`:""}</div>`}).join(""):"<p>No missed questions. Nice work.</p>";
+}
+$("retryMissed").onclick=()=>begin(shuffle(missedOnly));
+$("again").onclick=()=>{show("home");renderHome()};
+renderHome();
+</script>
+
+</body></html>
